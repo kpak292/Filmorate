@@ -17,7 +17,7 @@ public class DateValidator implements ConstraintValidator<IsAfter, LocalDate> {
 
     @Override
     public boolean isValid(LocalDate date, ConstraintValidatorContext constraintValidatorContext) {
-        if (date==null){
+        if (date == null) {
             return true;
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
