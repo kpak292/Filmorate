@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +20,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        if (!validate(user)) {
-            throw new ValidationException("Error: Data does not meet requirements");
-        }
-
+    public User create(@Valid @RequestBody User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -36,13 +31,9 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         if (!users.containsKey(user.getId())) {
             throw new NotFoundException("Error: User with id " + user.getId() + " is not found");
-        }
-
-        if (!validate(user)) {
-            throw new ValidationException("Error: Data does not meet requirements");
         }
 
         User oldUser = users.get(user.getId());
@@ -69,13 +60,4 @@ public class UserController {
                 .orElse(0);
         return ++currentMaxId;
     }
-
-    //Проверка на полей на критерии
-    private boolean validate(User user) {
-        return !user.getEmail().isBlank() &&
-                user.getEmail().contains("@") &&
-                !user.getLogin().isBlank() &&
-                user.getBirthday().isBefore(LocalDate.now());
-    }
-
 }
