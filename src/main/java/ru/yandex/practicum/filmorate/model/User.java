@@ -1,21 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-/**
- * Film.
- */
-@Getter
-@Setter
-public class Film {
+@Data
+public class User {
     int id;
+    String email;
+    String login;
     String name;
-    String description;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate releaseDate;
-    int duration;
+    LocalDate birthday;
 }
