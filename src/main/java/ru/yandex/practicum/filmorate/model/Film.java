@@ -1,11 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.*;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -15,8 +11,12 @@ import java.time.LocalDate;
  */
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
+@RequiredArgsConstructor
 public class Film {
     int id;
+    @NonNull
     @NotBlank(message = "Name cannot be null or blank")
     String name;
     @Size(max = 200, message = "Description cannot be more than 200 symbols")
@@ -25,6 +25,6 @@ public class Film {
     @Past(message = "Release data cannot be in future")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate releaseDate;
-    @Positive(message = "Duration should be positive")
-    int duration;
+    @PositiveOrZero(message = "Duration should be positive")
+    int duration = 0;
 }

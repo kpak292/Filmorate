@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class DateValidator implements ConstraintValidator<IsAfter, LocalDate> {
 
@@ -16,9 +17,10 @@ public class DateValidator implements ConstraintValidator<IsAfter, LocalDate> {
 
     @Override
     public boolean isValid(LocalDate date, ConstraintValidatorContext constraintValidatorContext) {
-        String[] splitDate = validDate.split("-");
-        return date.isAfter(LocalDate.of(Integer.valueOf(splitDate[0]),
-                Integer.valueOf(splitDate[1]),
-                Integer.valueOf(splitDate[2])));
+        if (date==null){
+            return true;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return date.isAfter(LocalDate.parse(validDate, formatter));
     }
 }
