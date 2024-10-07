@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +27,14 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("Received POST request: {}", user.toString());
+
+        if (!validate(user)) {
+            log.debug("Create: Validation failed for user: {}", user.toString());
+            throw new ValidationException("Error: Data does not meet requirements");
+        }
+
         if (user.getName() == null || user.getName().isBlank()) {
-            log.debug("User name is blank or null, set name = login");
+            log.debug("Create: User name is blank or null, set name = login");
             user.setName(user.getLogin());
         }
 
@@ -44,6 +52,12 @@ public class UserController {
             log.debug("User is not found with id {}", user.getId());
             throw new NotFoundException("Error: User with id " + user.getId() + " is not found");
         }
+
+        if (!validate(user)) {
+            log.debug("Update: Validation failed for user: {}", user.toString());
+            throw new ValidationException("Error: Data does not meet requirements");
+        }
+
 
         User oldUser = users.get(user.getId());
         oldUser.setLogin(user.getLogin());
@@ -70,5 +84,15 @@ public class UserController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    //Проверка на полей на критерии
+    private boolean validate(User user) {
+        return user.getLogin() != null &&
+                user.getEmail() != null &&
+                !user.getEmail().isBlank() &&
+                user.getEmail().contains("@") &&
+                !user.getLogin().isBlank() &&
+                user.getBirthday().isBefore(LocalDate.now());
     }
 }
