@@ -4,6 +4,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -14,49 +16,97 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class UserModelTest {
-    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private final UserController validator = new UserController();
 
     @Test
     public void shouldNotValidateUserWithBlankLogin() {
-        User user = new User("test@test.ru", " ");
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        User user = User.builder()
+                .login(" ")
+                .birthday(LocalDate.of(1990, 12, 1))
+                .email("test@test.ru")
+                .name("name")
+                .build();
 
-        assertFalse(violations.isEmpty());
+        assertThrows(ValidationException.class,
+                () -> validator.create(user));
     }
 
     @Test
     public void shouldNotCreateUserWithNullLogin() {
-        assertThrows(NullPointerException.class, () -> new User("test@test.ru", null));
+        User user = User.builder()
+                .login(null)
+                .birthday(LocalDate.of(1990, 12, 1))
+                .email("test@test.ru")
+                .name("name")
+                .build();
+
+        assertThrows(ValidationException.class,
+                () -> validator.create(user));
     }
 
     @Test
     public void shouldNotCreateUserWithNullEmail() {
-        assertThrows(NullPointerException.class, () -> new User(null, "login"));
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(1990, 12, 1))
+                .email(null)
+                .name("name")
+                .build();
+
+        assertThrows(ValidationException.class,
+                () -> validator.create(user));
     }
 
     @Test
     public void shouldNotValidateUserWithBlankEmail() {
-        User user = new User(" ", "login");
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(1990, 12, 1))
+                .email(" ")
+                .name("name")
+                .build();
 
-        assertFalse(violations.isEmpty());
+        assertThrows(ValidationException.class,
+                () -> validator.create(user));
     }
 
     @Test
     public void shouldNotValidateUserWithIncorrectEmail() {
-        User user = new User("@asdfasf.ru", "login");
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(1990, 12, 1))
+                .email("test")
+                .name("name")
+                .build();
 
+        assertThrows(ValidationException.class,
+                () -> validator.create(user));
+    }
+
+    @Test
+    public void shouldNotValidateUserWithIncorrectEmail2() {
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(1990, 12, 1))
+                .email("@test.ru")
+                .name("name")
+                .build();
+
+        Validator validator2 = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<User>> violations = validator2.validate(user);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void shouldNotValidateUserWithIncorrectBirthDate() {
-        User user = new User("test@test.ru", "login");
-        user.setBirthday(LocalDate.of(2100, 12, 2));
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(2990, 12, 1))
+                .email("test@test.ru")
+                .name("name")
+                .build();
 
-        assertFalse(violations.isEmpty());
+        assertThrows(ValidationException.class,
+                () -> validator.create(user));
     }
-
 }
