@@ -4,10 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +15,6 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
-    private final LocalDate minDate = LocalDate.of(1895, 12, 28);
 
     @GetMapping
     public Collection<Film> getAll() {
@@ -27,11 +24,6 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (!validate(film)) {
-            log.debug("Create: Validation failed film: {}", film.toString());
-            throw new ValidationException("Error: Data does not meet requirements");
-        }
-
         log.info("Received POST request: {}", film.toString());
         film.setId(getNextId());
         log.debug("Generated ID for film: {}", film.getId());
@@ -46,11 +38,6 @@ public class FilmController {
         if (!films.containsKey(film.getId())) {
             log.debug("Film is not found with id {}", film.getId());
             throw new NotFoundException("Error: Film with id " + film.getId() + " is not found");
-        }
-
-        if (!validate(film)) {
-            log.debug("Update: Validation failed film: {}", film.toString());
-            throw new ValidationException("Error: Data does not meet requirements");
         }
 
         Film oldFilm = films.get(film.getId());
@@ -71,16 +58,6 @@ public class FilmController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
-    }
-
-    //Проверка на полей на критерии
-    private boolean validate(Film film) {
-        return film.getName() != null &&
-                !film.getName().isBlank() &&
-                film.getDescription().length() <= 200 &&
-                film.getReleaseDate().isAfter(minDate) &&
-                film.getReleaseDate().isBefore(LocalDate.now()) &&
-                film.getDuration() >= 0;
     }
 
 }
