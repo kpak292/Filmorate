@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -11,11 +14,14 @@ import java.time.LocalDate;
  */
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
-    int id;
+    long id;
+    @NotBlank
     String name;
+    @NotBlank
     String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate releaseDate;
-    int duration = 0;
+    int duration;
 }

@@ -1,16 +1,18 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.repository.InMemoryFilmDAO;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.impl.InMemoryFilmService;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmModelTest {
-    private final FilmController validator = new FilmController();
+    private final FilmService validator = new InMemoryFilmService(new InMemoryFilmDAO());
 
     @Test
     public void shouldNotCreateFilmWithNullName() {
