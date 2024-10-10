@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,19 +10,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
-/**
- * Film.
- */
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Film {
-    long id;
+public class User {
+    int id;
+    @Email(message = "Email format is incorrect")
     @NotBlank
+    String email;
+    @NotBlank
+    String login;
     String name;
-    @NotBlank
-    String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    LocalDate releaseDate;
-    int duration;
+    LocalDate birthday;
 }
