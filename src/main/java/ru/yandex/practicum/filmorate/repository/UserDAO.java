@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 
-public interface UserService {
+public interface UserDAO {
     Collection<User> getAll();
 
     User getById(long id);
@@ -13,14 +13,11 @@ public interface UserService {
 
     User update(User user);
 
-    boolean validate(User user);
-
     void addFriend(long userId, long friendId);
 
     void removeFriend(long userId, long friendId);
 
     Collection<User> getFriends(long id);
 
-    Collection<User> getCommonFriends(long userId, long friendId);
-
+    void checkUsers(long... ids);
 }

@@ -1,18 +1,16 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.Map;
 
-public interface FilmService {
+public interface FilmDAO {
     Collection<Film> findAll();
 
     Film create(Film film);
 
     Film update(Film film);
-
-    boolean validate(Film film);
 
     Film getById(long id);
 
@@ -21,4 +19,6 @@ public interface FilmService {
     Map<Film, Integer> removeLike(long filmId, long userId);
 
     Collection<Film> getTop(int count);
+
+    void checkFilms(long... ids);
 }
