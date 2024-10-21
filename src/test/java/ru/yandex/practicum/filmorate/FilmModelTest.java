@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.repository.impl.InMemoryFilmDAO;
+import ru.yandex.practicum.filmorate.repository.impl.InMemoryUserDAO;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.impl.InMemoryFilmService;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmModelTest {
-    private final FilmService validator = new InMemoryFilmService(new InMemoryFilmDAO());
+    private final FilmService validator = new InMemoryFilmService(new InMemoryFilmDAO(new InMemoryUserDAO()));
 
     @Test
     public void shouldNotCreateFilmWithNullName() {
