@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
-    int id;
+    long id;
     @Email(message = "Email format is incorrect")
     @NotBlank
     String email;
