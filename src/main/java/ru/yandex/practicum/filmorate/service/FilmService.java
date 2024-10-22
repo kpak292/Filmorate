@@ -12,7 +12,7 @@ public interface FilmService {
 
     Film update(Film film);
 
-    boolean validate(Film film);
+    Film delete(long id);
 
     Film getById(long id);
 

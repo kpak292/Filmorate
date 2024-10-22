@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmDAO;
 import ru.yandex.practicum.filmorate.repository.UserDAO;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 public class InMemoryFilmDAO implements FilmDAO {
     private final Map<Long, Film> films = new HashMap<>();
     private final Map<Long, Collection<Long>> likes = new HashMap<>();
+
+    private final LocalDate minDate = LocalDate.of(1895, 12, 28);
 
     @Autowired
     private final UserDAO users;
@@ -26,48 +30,59 @@ public class InMemoryFilmDAO implements FilmDAO {
 
     @Override
     public Collection<Film> findAll() {
-        log.debug("Film/GetAll");
+        log.debug("FilmDAO/getAll");
         return films.values();
     }
 
     @Override
     public Film create(Film film) {
-        log.debug("Film/Create");
+        validate(film);
+
         film.setId(getNextId());
-        log.debug("Generated id: {}", film.getId());
         films.put(film.getId(), film);
-        log.debug("Added film: {}", film.toString());
+        log.debug("FilmDAO/create - Added film: {}", film.toString());
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        log.debug("Film/Update: id {}", film.getId());
-        checkFilms(film.getId());
+        validate(film.getId());
 
         Film oldFilm = films.get(film.getId());
         oldFilm.setName(film.getName());
         oldFilm.setDescription(film.getDescription());
         oldFilm.setReleaseDate(film.getReleaseDate());
         oldFilm.setDuration(film.getDuration());
-        log.debug("Updated user: {}", oldFilm.toString());
+        log.debug("FilmDAO/update - Updated film: {}", oldFilm.toString());
 
         return oldFilm;
     }
 
     @Override
     public Film getById(long id) {
-        checkFilms(id);
+        validate(id);
 
+        log.debug("FilmDAO/getById - Film ID: {}", id);
         return films.get(id);
     }
 
     @Override
-    public Map<Film, Integer> addLike(long filmId, long userId) {
-        log.debug("Film/addLike: ids {}, {}", filmId, userId);
+    public Film delete(long id) {
+        validate(id);
 
-        checkFilms(filmId);
-        users.checkUsers(userId);
+        log.debug("FilmDAO/delete - removed Film ID: {}", id);
+
+        //Delete all likes
+        likes.remove(id);
+        likes.values().forEach(array -> array.remove(id));
+
+        return films.remove(id);
+    }
+
+    @Override
+    public Map<Film, Integer> addLike(long filmId, long userId) {
+        validate(filmId);
+        users.validate(userId);
 
         if (!likes.containsKey(filmId)) {
             likes.put(filmId, new HashSet<>());
@@ -75,16 +90,16 @@ public class InMemoryFilmDAO implements FilmDAO {
 
         likes.get(filmId).add(userId);
 
+        log.debug("FilmDAO/addLike - added like for Film ID {} from user ID {}", filmId, userId);
+
         return Map.of(films.get(filmId),
                 likes.get(filmId).size());
     }
 
     @Override
     public Map<Film, Integer> removeLike(long filmId, long userId) {
-        log.debug("Film/removeLike: ids {}, {}", filmId, userId);
-
-        checkFilms(filmId);
-        users.checkUsers(userId);
+        validate(filmId);
+        users.validate(userId);
 
         if (!likes.containsKey(filmId)) {
             likes.put(filmId, new HashSet<>());
@@ -92,12 +107,16 @@ public class InMemoryFilmDAO implements FilmDAO {
 
         likes.get(filmId).remove(userId);
 
+        log.debug("FilmDAO/removeLike - removed like for Film ID {} from user ID {}", filmId, userId);
+
         return Map.of(films.get(filmId),
                 likes.get(filmId).size());
     }
 
     @Override
     public Collection<Film> getTop(int count) {
+        log.debug("FilmDAO/getTop");
+
         return likes.entrySet().stream()
                 .filter(list -> !list.getValue().isEmpty())
                 .map(entry -> Map.entry(films.get(entry.getKey()),
@@ -123,16 +142,34 @@ public class InMemoryFilmDAO implements FilmDAO {
         return ++currentMaxId;
     }
 
-    // Util method for check films
+
     @Override
-    public void checkFilms(long... ids) {
+    public void validate(Film film) {
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ValidationException("Film:name - name cannot be blank or null");
+        }
+
+        if (film.getDescription().length() > 200) {
+            throw new ValidationException("Film:description - description cannot be more than 200 symbols");
+        }
+
+        if (film.getReleaseDate().isBefore(minDate) || film.getReleaseDate().isAfter(LocalDate.now())) {
+            throw new ValidationException("Film:releaseDate - release date cannot be in future or before 28.12.1895");
+        }
+
+        if (film.getDuration() < 0) {
+            throw new ValidationException("Film:duration - duration cannot be negative");
+        }
+    }
+
+    @Override
+    public void validate(long... ids) {
         String notFound = Arrays.stream(ids)
                 .filter(id -> !films.containsKey(id))
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(","));
 
         if (!notFound.isBlank()) {
-            log.debug("Film with ID {} is not found", notFound);
             throw new NotFoundException("Film with ID " + notFound + " is not found");
         }
     }

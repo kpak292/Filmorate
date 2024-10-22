@@ -13,11 +13,15 @@ public interface UserDAO {
 
     User update(User user);
 
+    User delete(long id);
+
     void addFriend(long userId, long friendId);
 
     void removeFriend(long userId, long friendId);
 
     Collection<User> getFriends(long id);
 
-    void checkUsers(long... ids);
+    void validate(long... ids);
+
+    void validate(User user);
 }

@@ -14,11 +14,15 @@ public interface FilmDAO {
 
     Film getById(long id);
 
+    Film delete(long id);
+
     Map<Film, Integer> addLike(long filmId, long userId);
 
     Map<Film, Integer> removeLike(long filmId, long userId);
 
     Collection<Film> getTop(int count);
 
-    void checkFilms(long... ids);
+    void validate(Film films);
+
+    void validate(long... ids);
 }

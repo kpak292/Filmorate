@@ -13,7 +13,7 @@ public interface UserService {
 
     User update(User user);
 
-    boolean validate(User user);
+    User delete(long id);
 
     void addFriend(long userId, long friendId);
 
