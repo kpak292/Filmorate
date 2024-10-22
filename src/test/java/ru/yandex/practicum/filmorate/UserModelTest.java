@@ -8,8 +8,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserDAO;
 import ru.yandex.practicum.filmorate.repository.impl.InMemoryUserDAO;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.impl.InMemoryUserService;
 
 import java.time.LocalDate;
 import java.util.Set;
