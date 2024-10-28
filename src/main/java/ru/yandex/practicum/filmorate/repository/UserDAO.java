@@ -21,6 +21,10 @@ public interface UserDAO {
 
     Collection<User> getFriends(long id);
 
+    Collection<User> getPending(long id);
+
+    Collection<User> getRequests(long id);
+
     void validate(long... ids);
 
     void validate(User user);

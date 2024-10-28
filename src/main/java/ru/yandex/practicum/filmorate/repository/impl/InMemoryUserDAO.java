@@ -15,7 +15,11 @@ import java.util.stream.Collectors;
 @Repository
 public class InMemoryUserDAO implements UserDAO {
     private final Map<Long, User> users = new HashMap<>();
-    private final Map<Long, Collection<Long>> friends = new HashMap<>();
+    private final Map<Long, Map<Long, Integer>> friends = new HashMap<>();
+    //added status
+    //0 - requested friendship
+    //1 - pending request
+    //2 - friends
 
     @Override
     public Collection<User> getAll() {
@@ -68,21 +72,34 @@ public class InMemoryUserDAO implements UserDAO {
     public void addFriend(long userId, long friendId) {
         validate(userId, friendId);
 
+        //If there is no any bonds - create blank map
         if (!friends.containsKey(userId)) {
-            friends.put(userId, new HashSet<>());
+            friends.put(userId, new HashMap<>());
         }
 
-        if (friends.get(userId).contains(friendId)) {
+        //If user has bonds with friendId not equal to 1 - Exception
+        if (friends.get(userId).containsKey(friendId) && friends.get(userId).get(friendId) != 1) {
             throw new ValidationException("Error: User already have friend with id " + friendId);
         }
 
-        friends.get(userId).add(friendId);
-
-        if (!friends.containsKey(friendId)) {
-            friends.put(friendId, new HashSet<>());
+        //If there is no bonds - Create pending request, else finalize frienship
+        if (!friends.get(userId).containsKey(friendId))
+            friends.get(userId).put(friendId, 0);
+        else {
+            friends.get(userId).put(friendId, 2);
         }
 
-        friends.get(friendId).add(userId);
+        //If friend does not have bonds - create blank
+        if (!friends.containsKey(friendId)) {
+            friends.put(friendId, new HashMap<>());
+        }
+
+        //If there is no bonds - Create pending request, else finalize frienship
+        if (!friends.get(friendId).containsKey(userId)) {
+            friends.get(friendId).put(userId, 1);
+        } else {
+            friends.get(friendId).put(userId, 2);
+        }
 
         log.debug("UserDAO/addFriend - added friend ID {} for User ID {}", friendId, userId);
     }
@@ -111,7 +128,27 @@ public class InMemoryUserDAO implements UserDAO {
         }
 
         log.debug("User/getFriends id: {}", id);
-        return friends.get(id).stream()
+        return friends.get(id).entrySet().stream()
+                .filter(entry -> entry.getValue() == 2)
+                .map(Map.Entry::getKey)
+                .map(users::get)
+                .toList();
+    }
+
+    @Override
+    public Collection<User> getPending(long id) {
+        return friends.get(id).entrySet().stream()
+                .filter(entry -> entry.getValue() == 1)
+                .map(Map.Entry::getKey)
+                .map(users::get)
+                .toList();
+    }
+
+    @Override
+    public Collection<User> getRequests(long id) {
+        return friends.get(id).entrySet().stream()
+                .filter(entry -> entry.getValue() == 0)
+                .map(Map.Entry::getKey)
                 .map(users::get)
                 .toList();
     }
