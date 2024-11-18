@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmDAO;
+import ru.yandex.practicum.filmorate.dal.UserDAO;
 import ru.yandex.practicum.filmorate.dal.impl.DBGenreDAO;
 import ru.yandex.practicum.filmorate.dal.impl.DBMpaDAO;
 import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.entities.Genre;
 import ru.yandex.practicum.filmorate.entities.Mpa;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.util.ArrayList;
@@ -23,20 +24,21 @@ public class FilmService {
     private final FilmDAO filmRepository;
     private final DBGenreDAO genreRepository;
     private final DBMpaDAO mpaRepository;
+    private final UserDAO userRepository;
 
     public Collection<Film> findAll() {
         return filmRepository.findAll();
     }
 
     public Film create(Film film) {
-        //populate genres with names
-        Film filmWithNames = getNames(film);
+        //populate genres and MPA with names
+        Film filmWithNames = validateMpaAndGenre(film);
 
         //record film
         Film result = filmRepository.create(filmWithNames);
 
 
-        //record bonds and set names
+        //record links of films and genres
         result.getGenres().forEach(
                 genre -> genreRepository.create(film.getId(), genre.getId()));
 
@@ -44,7 +46,22 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        return filmRepository.update(film);
+        //populate genres and MPA with names
+        Film filmWithNames = validateMpaAndGenre(film);
+
+        Film result = filmRepository.update(film);
+
+        Collection<Genre> filmGenres = genreRepository.getGenresByFilmId(result.getId());
+
+        filmGenres.stream()
+                .filter(genre -> !result.getGenres().contains(genre))
+                .forEach(genre -> genreRepository.create(result.getId(), genre.getId()));
+
+        result.getGenres().stream()
+                .filter(genre -> !filmGenres.contains(genre))
+                .forEach(genre -> genreRepository.delete(result.getId(), genre.getId()));
+
+        return result;
     }
 
     public Film delete(long id) {
@@ -52,29 +69,46 @@ public class FilmService {
     }
 
     public Film getById(long id) {
-        return filmRepository.getById(id);
+        return validateMpaAndGenre(filmRepository.getById(id));
     }
 
     public Map<Film, Integer> addLike(long filmId, long userId) {
-        return filmRepository.addLike(filmId, userId);
+        userRepository.getById(userId);
+        filmRepository.getById(filmId);
+
+        Map<Film, Integer> result =  filmRepository.addLike(filmId, userId);
+        result.keySet().forEach(this::validateMpaAndGenre);
+
+        return result;
     }
 
     public Map<Film, Integer> removeLike(long filmId, long userId) {
-        return filmRepository.removeLike(filmId, userId);
+        userRepository.getById(userId);
+        filmRepository.getById(filmId);
+
+        Map<Film, Integer> result =  filmRepository.removeLike(filmId, userId);
+        result.keySet().forEach(this::validateMpaAndGenre);
+
+        return result;
     }
 
     public Collection<Film> getTop(int count) {
         return filmRepository.getTop(count);
     }
 
-    private Film getNames(Film film) {
+    private Film validateMpaAndGenre(Film film) {
         Collection<Genre> genres = genreRepository.findAll();
 
         if (film.getGenres() == null) {
             film.setGenres(new ArrayList<>());
         }
 
-        film.getGenres().forEach(genre -> {
+        film.setGenres(film.getGenres().stream()
+                .distinct()
+                .toList());
+
+        film.getGenres()
+                .forEach(genre -> {
             Genre genreWithName = genres.stream()
                     .filter(g -> g.getId() == genre.getId())
                     .findFirst()

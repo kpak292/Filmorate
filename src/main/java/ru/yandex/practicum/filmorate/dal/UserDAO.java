@@ -25,7 +25,5 @@ public interface UserDAO {
 
     Collection<User> getRequests(long id);
 
-    void validate(long... ids);
-
     void validate(User user);
 }

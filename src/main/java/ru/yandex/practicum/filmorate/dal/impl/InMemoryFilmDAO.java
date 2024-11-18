@@ -82,7 +82,7 @@ public class InMemoryFilmDAO implements FilmDAO {
     @Override
     public Map<Film, Integer> addLike(long filmId, long userId) {
         validate(filmId);
-        users.validate(userId);
+
 
         if (!likes.containsKey(filmId)) {
             likes.put(filmId, new HashSet<>());
@@ -99,7 +99,6 @@ public class InMemoryFilmDAO implements FilmDAO {
     @Override
     public Map<Film, Integer> removeLike(long filmId, long userId) {
         validate(filmId);
-        users.validate(userId);
 
         if (!likes.containsKey(filmId)) {
             likes.put(filmId, new HashSet<>());

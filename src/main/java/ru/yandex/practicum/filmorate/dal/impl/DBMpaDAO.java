@@ -6,7 +6,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
+import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.entities.Mpa;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
 import java.util.Collection;
 
@@ -22,7 +24,20 @@ public class DBMpaDAO extends BaseRepository<Mpa> {
             SELECT *
             FROM rating""";
 
+    private static final String FIND_BY_ID_QUERY = """
+            SELECT *
+            FROM   rating
+            WHERE  id = ?""";
+
     public Collection<Mpa> findAll() {
         return findMany(FIND_ALL_QUERY);
     }
+
+    public Mpa getById(long id) {
+        return findOne(FIND_BY_ID_QUERY, id)
+                .orElseThrow(
+                        () -> new NotFoundException("MPA is not found with id " + id)
+                );
+    }
+
 }

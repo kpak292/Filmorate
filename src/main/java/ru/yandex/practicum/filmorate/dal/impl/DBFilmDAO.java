@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,6 +21,9 @@ import java.util.Map;
 @Repository
 @Primary
 public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
+    @Autowired
+    DBLikeDAO likeRepository;
+
     private final LocalDate minDate = LocalDate.of(1895, 12, 28);
 
     private static final String FIND_ALL_QUERY = """
@@ -54,9 +58,7 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
                          ?,
                          ?)""";
 
-
-
-    private static final String UPDATE_FILM_QUERY = """
+    private static final String UPDATE_QUERY = """
             UPDATE films
             SET    name = ?,
                    description = ?,
@@ -69,6 +71,34 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
             SET    status_id = 1
             WHERE  id = ?""";
 
+    private static final String ADD_LIKE_QUERY = """
+            INSERT INTO likes
+                        (user_id,
+                         film_id)
+            VALUES      (?,
+                         ?)""";
+
+    private static final String DELETE_LIKE_QUERY = """
+            UPDATE likes
+            SET    status_id = 1
+            WHERE  user_id = ?
+                   AND film_id = ?""";
+
+    private static final String FIND_TOP_LIKED_QUERY = """
+            SELECT f.*,
+                   Count(l.user_id) AS count,
+                   (SELECT Group_concat(genre_id)
+                    FROM   genres g
+                    WHERE  f.id = g.film_id
+                           AND g.status_id = 0) AS genres
+            FROM   films f
+                   INNER JOIN likes l
+                           ON f.id = l.film_id
+            WHERE  f.status_id = 0
+                   AND l.status_id = 0
+            GROUP  BY f.id
+            ORDER  BY count DESC
+            LIMIT 10;""";
 
 
     public DBFilmDAO(JdbcTemplate jdbc, RowMapper<Film> mapper) {
@@ -105,12 +135,15 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
 
     @Override
     public Film update(Film film) {
-        update(UPDATE_FILM_QUERY,
+        validate(film);
+
+        update(UPDATE_QUERY,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
-                film.getGenres(),
-                film.getMpa());
+                film.getMpa().getId(),
+                film.getId());
+
         return film;
     }
 
@@ -124,21 +157,37 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
 
     @Override
     public Map<Film, Integer> addLike(long filmId, long userId) {
-        return Map.of();
+        insert(ADD_LIKE_QUERY, userId, filmId);
+        Film film = getById(filmId);
+
+        int amount = likeRepository.getById(filmId).get(filmId);
+        return Map.of(film, amount);
     }
 
     @Override
     public Map<Film, Integer> removeLike(long filmId, long userId) {
-        return Map.of();
+        update(DELETE_LIKE_QUERY, userId, filmId);
+        Film film = getById(filmId);
+
+        int amount = likeRepository.getById(filmId).get(filmId);
+        return Map.of(film, amount);
     }
 
     @Override
     public Collection<Film> getTop(int count) {
-        return List.of();
+        return findMany(FIND_TOP_LIKED_QUERY);
     }
 
     @Override
     public void validate(Film film) {
+        if (film.getId() > 0) {
+            findOne(FIND_BY_ID_QUERY, film.getId()).orElseThrow(
+                    () -> new NotFoundException("Film is not found with id " + film.getId())
+            );
+        } else if (film.getId() < 0) {
+            throw new ValidationException("Film:id - id cannot be negative");
+        }
+
         if (film.getName() == null || film.getName().isBlank()) {
             throw new ValidationException("Film:name - name cannot be blank or null");
         }

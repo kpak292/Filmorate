@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.entities.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,14 +20,18 @@ public class FilmRowMapper implements RowMapper<Film> {
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("rating_id"));
 
-        List<Genre> genres = Arrays.stream(rs.getString("genres").split(","))
-                .mapToInt(Integer::parseInt)
-                .mapToObj(id -> {
-                    Genre genre =  new Genre();
-                    genre.setId(id);
-                    return genre;
-                })
-                .toList();
+        List<Genre> genres = new ArrayList<>();
+
+        if (rs.getString("genres") != null) {
+            genres = Arrays.stream(rs.getString("genres").split(","))
+                    .mapToInt(Integer::parseInt)
+                    .mapToObj(id -> {
+                        Genre genre = new Genre();
+                        genre.setId(id);
+                        return genre;
+                    })
+                    .toList();
+        }
 
 
         return Film.builder()
