@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmDAO;
-import ru.yandex.practicum.filmorate.repository.impl.InMemoryFilmDAO;
-import ru.yandex.practicum.filmorate.repository.impl.InMemoryUserDAO;
+import ru.yandex.practicum.filmorate.entities.Film;
+import ru.yandex.practicum.filmorate.dal.FilmDAO;
+import ru.yandex.practicum.filmorate.dal.impl.InMemoryFilmDAO;
+import ru.yandex.practicum.filmorate.dal.impl.InMemoryUserDAO;
 
 import java.time.LocalDate;
 

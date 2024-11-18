@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.repository.impl;
+package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.UserDAO;
+import ru.yandex.practicum.filmorate.entities.User;
+import ru.yandex.practicum.filmorate.dal.UserDAO;
 
 import java.time.LocalDate;
 import java.util.*;

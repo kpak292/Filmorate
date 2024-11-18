@@ -1,26 +1,66 @@
 package ru.yandex.practicum.filmorate.service;
 
-import ru.yandex.practicum.filmorate.model.User;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.UserDAO;
+import ru.yandex.practicum.filmorate.entities.User;
 
 import java.util.Collection;
 
-public interface UserService {
-    Collection<User> getAll();
+@Service
+@Slf4j
+@AllArgsConstructor
+public class UserService {
+    private final UserDAO repository;
 
-    User getById(long id);
+    public Collection<User> getAll() {
+        return repository.getAll();
+    }
 
-    User create(User user);
+    public User getById(long id) {
+        return repository.getById(id);
+    }
 
-    User update(User user);
+    public User create(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
 
-    User delete(long id);
+        return repository.create(user);
+    }
 
-    void addFriend(long userId, long friendId);
+    public User update(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
 
-    void removeFriend(long userId, long friendId);
+        return repository.update(user);
+    }
 
-    Collection<User> getFriends(long id);
+    public User delete(long id) {
+        return repository.delete(id);
+    }
 
-    Collection<User> getCommonFriends(long userId, long friendId);
+    public void addFriend(long userId, long friendId) {
+        repository.addFriend(userId, friendId);
+    }
+
+    public void removeFriend(long userId, long friendId) {
+        repository.removeFriend(userId, friendId);
+    }
+
+    public Collection<User> getFriends(long id) {
+        return repository.getFriends(id);
+    }
+
+    public Collection<User> getCommonFriends(long userId, long friendId) {
+        Collection<User> userFriends = repository.getFriends(userId);
+        Collection<User> friendFriends = repository.getFriends(friendId);
+
+        return userFriends.stream()
+                .filter(friendFriends::contains)
+                .toList();
+    }
 
 }

@@ -21,4 +21,10 @@ public class ErrorHandler {
         log.error(e.getMessage());
         return ErrorResponse.create(e, HttpStatus.BAD_REQUEST, e.getMessage());
     }
+
+    @ExceptionHandler
+    public ErrorResponse validationHandler(final InternalServerException e) {
+        log.error(e.getMessage());
+        return ErrorResponse.create(e, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
 }

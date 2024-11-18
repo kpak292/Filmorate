@@ -1,13 +1,13 @@
-package ru.yandex.practicum.filmorate.repository.impl;
+package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dal.FilmDAO;
+import ru.yandex.practicum.filmorate.dal.UserDAO;
+import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmDAO;
-import ru.yandex.practicum.filmorate.repository.UserDAO;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -162,7 +162,6 @@ public class InMemoryFilmDAO implements FilmDAO {
         }
     }
 
-    @Override
     public void validate(long... ids) {
         String notFound = Arrays.stream(ids)
                 .filter(id -> !films.containsKey(id))
