@@ -1,7 +1,7 @@
 -- user_status - recreated each launch for population of initial data
 -- 0 - Active
 -- 1 - Deleted
-INSERT ignore
+MERGE
 INTO   entry_status
        (
               id,
@@ -23,7 +23,7 @@ INTO   entry_status
 -- 1 - Requested
 -- 2 - Received
 -- 3 - Deleted
-INSERT ignore
+MERGE
 INTO   friendship_status
        (
               id,
@@ -46,7 +46,7 @@ INTO   friendship_status
        );
 
 -- rating - recreated each launch for population of initial data
-INSERT ignore
+MERGE
 INTO   rating
        (
               id,
@@ -79,7 +79,7 @@ INTO   rating
        );
 
 -- rating - recreated each launch for population of initial data
-INSERT ignore
+MERGE
 INTO   genre
        (
               id,

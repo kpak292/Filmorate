@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.entities.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Component
+@Component("userMapper")
 public class UserRowMapper implements RowMapper<User> {
 
     @Override

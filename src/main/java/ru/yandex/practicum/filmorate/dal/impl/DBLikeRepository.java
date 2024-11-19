@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,6 +14,7 @@ import java.util.Map;
 @Repository
 @Primary
 public class DBLikeRepository extends BaseRepository<Map<Long,Integer>> {
+    @Autowired
     public DBLikeRepository(JdbcTemplate jdbc, RowMapper<Map<Long,Integer>> mapper) {
         super(jdbc, mapper);
     }

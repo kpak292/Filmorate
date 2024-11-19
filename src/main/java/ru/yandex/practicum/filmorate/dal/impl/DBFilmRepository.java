@@ -97,7 +97,7 @@ public class DBFilmRepository extends BaseRepository<Film> implements FilmReposi
                    AND l.status_id = 0
             GROUP  BY f.id
             ORDER  BY count DESC
-            LIMIT 10;""";
+            LIMIT ?;""";
 
     private static final String DELETE_ALL_LIKES_QUERY = """
             UPDATE likes
@@ -194,7 +194,7 @@ public class DBFilmRepository extends BaseRepository<Film> implements FilmReposi
     public Collection<Film> getTop(int count) {
         log.debug("FilmDAO/getTop");
 
-        return findMany(FIND_TOP_LIKED_QUERY);
+        return findMany(FIND_TOP_LIKED_QUERY, count);
     }
 
     @Override
@@ -224,7 +224,7 @@ public class DBFilmRepository extends BaseRepository<Film> implements FilmReposi
         }
     }
 
-    public void removeAllLikes(long filmId){
+    public void removeAllLikes(long filmId) {
         update(DELETE_ALL_LIKES_QUERY, filmId);
     }
 

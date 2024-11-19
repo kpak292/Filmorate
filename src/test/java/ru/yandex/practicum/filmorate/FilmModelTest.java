@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.impl.InMemoryFilmRepository;
 import ru.yandex.practicum.filmorate.dal.impl.InMemoryUserRepository;
+import ru.yandex.practicum.filmorate.entities.Film;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.time.LocalDate;
 

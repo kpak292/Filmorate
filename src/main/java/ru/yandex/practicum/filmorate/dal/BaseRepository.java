@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,7 +15,9 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class BaseRepository<T> {
+    @Autowired
     protected final JdbcTemplate jdbc;
+    @Autowired
     protected final RowMapper<T> mapper;
 
     protected Optional<T> findOne(String query, Object... params) {

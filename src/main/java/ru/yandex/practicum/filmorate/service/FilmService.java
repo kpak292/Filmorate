@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
@@ -20,9 +21,13 @@ import java.util.Map;
 @Slf4j
 @AllArgsConstructor
 public class FilmService {
+    @Autowired
     private final FilmRepository filmRepository;
+    @Autowired
     private final DBGenreRepository genreRepository;
+    @Autowired
     private final DBMpaRepository mpaRepository;
+    @Autowired
     private final UserRepository userRepository;
 
     public Collection<Film> findAll() {

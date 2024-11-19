@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,6 +16,7 @@ import java.util.Collection;
 @Repository
 @Primary
 public class DBMpaRepository extends BaseRepository<Mpa> {
+    @Autowired
     public DBMpaRepository(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);
     }
