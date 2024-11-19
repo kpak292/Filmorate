@@ -7,22 +7,21 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
-import ru.yandex.practicum.filmorate.dal.FilmDAO;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Repository
 @Primary
-public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
+public class DBFilmRepository extends BaseRepository<Film> implements FilmRepository {
     @Autowired
-    DBLikeDAO likeRepository;
+    DBLikeRepository likeRepository;
 
     private final LocalDate minDate = LocalDate.of(1895, 12, 28);
 
@@ -100,18 +99,27 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
             ORDER  BY count DESC
             LIMIT 10;""";
 
+    private static final String DELETE_ALL_LIKES_QUERY = """
+            UPDATE likes
+            SET    status_id = 1
+            WHERE  film_id = ?""";
 
-    public DBFilmDAO(JdbcTemplate jdbc, RowMapper<Film> mapper) {
+
+    public DBFilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
     }
 
     @Override
     public Collection<Film> findAll() {
+        log.debug("FilmDAO/getAll");
+
         return findMany(FIND_ALL_QUERY);
     }
 
     @Override
     public Film getById(long id) {
+        log.debug("FilmDAO/getById - Film ID: {}", id);
+
         return findOne(FIND_BY_ID_QUERY, id)
                 .orElseThrow(
                         () -> new NotFoundException("Film is not found with id " + id)
@@ -130,6 +138,8 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
                 film.getMpa().getId());
 
         film.setId(id);
+
+        log.debug("FilmDAO/create - Added film: {}", film.toString());
         return film;
     }
 
@@ -144,14 +154,17 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
                 film.getMpa().getId(),
                 film.getId());
 
+        log.debug("FilmDAO/update - Updated film: {}", film.toString());
         return film;
     }
-
 
     @Override
     public Film delete(long id) {
         Film film = getById(id);
         update(DELETE_QUERY, id);
+        removeAllLikes(id);
+
+        log.debug("FilmDAO/delete - removed Film ID: {}", id);
         return film;
     }
 
@@ -161,6 +174,8 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
         Film film = getById(filmId);
 
         int amount = likeRepository.getById(filmId).get(filmId);
+
+        log.debug("FilmDAO/addLike - added like for Film ID {} from user ID {}", filmId, userId);
         return Map.of(film, amount);
     }
 
@@ -170,11 +185,15 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
         Film film = getById(filmId);
 
         int amount = likeRepository.getById(filmId).get(filmId);
+
+        log.debug("FilmDAO/removeLike - removed like for Film ID {} from user ID {}", filmId, userId);
         return Map.of(film, amount);
     }
 
     @Override
     public Collection<Film> getTop(int count) {
+        log.debug("FilmDAO/getTop");
+
         return findMany(FIND_TOP_LIKED_QUERY);
     }
 
@@ -203,6 +222,10 @@ public class DBFilmDAO extends BaseRepository<Film> implements FilmDAO {
         if (film.getDuration() < 0) {
             throw new ValidationException("Film:duration - duration cannot be negative");
         }
+    }
+
+    public void removeAllLikes(long filmId){
+        update(DELETE_ALL_LIKES_QUERY, filmId);
     }
 
 }

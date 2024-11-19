@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.entities.User;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.entities.User;
-import ru.yandex.practicum.filmorate.dal.UserDAO;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
-public class InMemoryUserDAO implements UserDAO {
+public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private final Map<Long, Map<Long, Integer>> friends = new HashMap<>();
     //added status
@@ -130,24 +130,6 @@ public class InMemoryUserDAO implements UserDAO {
         log.debug("User/getFriends id: {}", id);
         return friends.get(id).entrySet().stream()
                 .filter(entry -> entry.getValue() == 2)
-                .map(Map.Entry::getKey)
-                .map(users::get)
-                .toList();
-    }
-
-    @Override
-    public Collection<User> getPending(long id) {
-        return friends.get(id).entrySet().stream()
-                .filter(entry -> entry.getValue() == 1)
-                .map(Map.Entry::getKey)
-                .map(users::get)
-                .toList();
-    }
-
-    @Override
-    public Collection<User> getRequests(long id) {
-        return friends.get(id).entrySet().stream()
-                .filter(entry -> entry.getValue() == 0)
                 .map(Map.Entry::getKey)
                 .map(users::get)
                 .toList();

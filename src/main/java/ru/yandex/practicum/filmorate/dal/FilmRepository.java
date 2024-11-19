@@ -5,7 +5,7 @@ import ru.yandex.practicum.filmorate.entities.Film;
 import java.util.Collection;
 import java.util.Map;
 
-public interface FilmDAO {
+public interface FilmRepository {
     Collection<Film> findAll();
 
     Film create(Film film);

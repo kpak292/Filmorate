@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.UserDAO;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.entities.User;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.Collection;
 @Slf4j
 @AllArgsConstructor
 public class UserService {
-    private final UserDAO repository;
+    private final UserRepository repository;
 
     public Collection<User> getAll() {
         return repository.getAll();

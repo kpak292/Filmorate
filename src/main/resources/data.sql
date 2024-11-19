@@ -32,21 +32,16 @@ INTO   friendship_status
        VALUES
        (
               0,
-              'Friendly'
+              'None'
        )
        ,
        (
               1,
-              'Requested'
+              'Friendly'
        )
        ,
        (
               2,
-              'Received'
-       )
-       ,
-       (
-              3,
               'Deleted'
        );
 

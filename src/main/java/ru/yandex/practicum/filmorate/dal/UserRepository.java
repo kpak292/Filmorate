@@ -4,7 +4,7 @@ import ru.yandex.practicum.filmorate.entities.User;
 
 import java.util.Collection;
 
-public interface UserDAO {
+public interface UserRepository {
     Collection<User> getAll();
 
     User getById(long id);
@@ -20,10 +20,6 @@ public interface UserDAO {
     void removeFriend(long userId, long friendId);
 
     Collection<User> getFriends(long id);
-
-    Collection<User> getPending(long id);
-
-    Collection<User> getRequests(long id);
 
     void validate(User user);
 }

@@ -6,16 +6,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
-import java.util.Collection;
 import java.util.Map;
 
 @Slf4j
 @Repository
 @Primary
-public class DBLikeDAO extends BaseRepository<Map<Long,Integer>> {
-    public DBLikeDAO(JdbcTemplate jdbc, RowMapper<Map<Long,Integer>> mapper) {
+public class DBLikeRepository extends BaseRepository<Map<Long,Integer>> {
+    public DBLikeRepository(JdbcTemplate jdbc, RowMapper<Map<Long,Integer>> mapper) {
         super(jdbc, mapper);
     }
 

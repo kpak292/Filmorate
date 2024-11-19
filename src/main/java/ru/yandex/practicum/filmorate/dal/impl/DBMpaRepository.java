@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
-import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.entities.Mpa;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
@@ -15,8 +14,8 @@ import java.util.Collection;
 @Slf4j
 @Repository
 @Primary
-public class DBMpaDAO extends BaseRepository<Mpa> {
-    public DBMpaDAO(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
+public class DBMpaRepository extends BaseRepository<Mpa> {
+    public DBMpaRepository(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);
     }
 

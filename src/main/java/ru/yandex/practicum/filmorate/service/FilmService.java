@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.FilmDAO;
-import ru.yandex.practicum.filmorate.dal.UserDAO;
-import ru.yandex.practicum.filmorate.dal.impl.DBGenreDAO;
-import ru.yandex.practicum.filmorate.dal.impl.DBMpaDAO;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dal.impl.DBGenreRepository;
+import ru.yandex.practicum.filmorate.dal.impl.DBMpaRepository;
 import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.entities.Genre;
 import ru.yandex.practicum.filmorate.entities.Mpa;
@@ -21,10 +20,10 @@ import java.util.Map;
 @Slf4j
 @AllArgsConstructor
 public class FilmService {
-    private final FilmDAO filmRepository;
-    private final DBGenreDAO genreRepository;
-    private final DBMpaDAO mpaRepository;
-    private final UserDAO userRepository;
+    private final FilmRepository filmRepository;
+    private final DBGenreRepository genreRepository;
+    private final DBMpaRepository mpaRepository;
+    private final UserRepository userRepository;
 
     public Collection<Film> findAll() {
         return filmRepository.findAll();
@@ -76,7 +75,7 @@ public class FilmService {
         userRepository.getById(userId);
         filmRepository.getById(filmId);
 
-        Map<Film, Integer> result =  filmRepository.addLike(filmId, userId);
+        Map<Film, Integer> result = filmRepository.addLike(filmId, userId);
         result.keySet().forEach(this::validateMpaAndGenre);
 
         return result;
@@ -86,7 +85,7 @@ public class FilmService {
         userRepository.getById(userId);
         filmRepository.getById(filmId);
 
-        Map<Film, Integer> result =  filmRepository.removeLike(filmId, userId);
+        Map<Film, Integer> result = filmRepository.removeLike(filmId, userId);
         result.keySet().forEach(this::validateMpaAndGenre);
 
         return result;
@@ -109,15 +108,15 @@ public class FilmService {
 
         film.getGenres()
                 .forEach(genre -> {
-            Genre genreWithName = genres.stream()
-                    .filter(g -> g.getId() == genre.getId())
-                    .findFirst()
-                    .orElseThrow(
-                            () -> new ValidationException("Invalid Genre with id " + genre.getId())
-                    );
+                    Genre genreWithName = genres.stream()
+                            .filter(g -> g.getId() == genre.getId())
+                            .findFirst()
+                            .orElseThrow(
+                                    () -> new ValidationException("Invalid Genre with id " + genre.getId())
+                            );
 
-            genre.setName(genreWithName.getName());
-        });
+                    genre.setName(genreWithName.getName());
+                });
 
         //Get all ratings
         Collection<Mpa> mpas = mpaRepository.findAll();

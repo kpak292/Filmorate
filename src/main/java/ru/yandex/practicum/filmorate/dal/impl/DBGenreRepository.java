@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.entities.Genre;
-import ru.yandex.practicum.filmorate.entities.Mpa;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
 import java.util.Collection;
@@ -15,8 +14,8 @@ import java.util.Collection;
 @Slf4j
 @Repository
 @Primary
-public class DBGenreDAO extends BaseRepository<Genre> {
-    public DBGenreDAO(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
+public class DBGenreRepository extends BaseRepository<Genre> {
+    public DBGenreRepository(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
     }
 

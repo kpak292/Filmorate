@@ -3,16 +3,16 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.entities.Film;
-import ru.yandex.practicum.filmorate.dal.FilmDAO;
-import ru.yandex.practicum.filmorate.dal.impl.InMemoryFilmDAO;
-import ru.yandex.practicum.filmorate.dal.impl.InMemoryUserDAO;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.impl.InMemoryFilmRepository;
+import ru.yandex.practicum.filmorate.dal.impl.InMemoryUserRepository;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmModelTest {
-    private final FilmDAO validator = new InMemoryFilmDAO(new InMemoryUserDAO());
+    private final FilmRepository validator = new InMemoryFilmRepository(new InMemoryUserRepository());
 
     @Test
     public void shouldNotCreateFilmWithNullName() {

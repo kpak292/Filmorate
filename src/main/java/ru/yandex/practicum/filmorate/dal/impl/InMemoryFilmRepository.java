@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.dal.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.FilmDAO;
-import ru.yandex.practicum.filmorate.dal.UserDAO;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.entities.Film;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
-public class InMemoryFilmDAO implements FilmDAO {
+public class InMemoryFilmRepository implements FilmRepository {
     private final Map<Long, Film> films = new HashMap<>();
     private final Map<Long, Collection<Long>> likes = new HashMap<>();
 
     private final LocalDate minDate = LocalDate.of(1895, 12, 28);
 
     @Autowired
-    private final UserDAO users;
+    private final UserRepository users;
 
-    public InMemoryFilmDAO(UserDAO users) {
+    public InMemoryFilmRepository(UserRepository users) {
         this.users = users;
     }
 

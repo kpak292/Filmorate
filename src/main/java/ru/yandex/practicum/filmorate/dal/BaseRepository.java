@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -38,9 +37,6 @@ public class BaseRepository<T> {
 
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);
-        if (rowsUpdated == 0) {
-            throw new InternalServerException("Не удалось обновить данные");
-        }
     }
 
     protected long insert(String query, Object... params) {

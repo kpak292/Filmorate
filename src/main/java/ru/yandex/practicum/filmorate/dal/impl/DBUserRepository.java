@@ -6,21 +6,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
-import ru.yandex.practicum.filmorate.dal.UserDAO;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.entities.User;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 @Repository
 @Primary
-public class DBUserDAO extends BaseRepository<User> implements UserDAO {
-
-
+public class DBUserRepository extends BaseRepository<User> implements UserRepository {
     private static final String FIND_ALL_QUERY = """
             SELECT *
             FROM   users
@@ -56,19 +53,55 @@ public class DBUserDAO extends BaseRepository<User> implements UserDAO {
             SET    status_id = 1
             WHERE  id = ?""";
 
+    private static final String FIND_FRIENDS_BY_USER_ID_QUERY = """
+            SELECT u.*
+            FROM   users u
+                   INNER JOIN friends f
+                           ON u.id = f.friend_id
+            WHERE  u.status_id = 0
+                   AND f.status_id = 1
+                   AND f.user_id = ?;""";
 
-    public DBUserDAO(JdbcTemplate jdbc, RowMapper<User> mapper) {
+    private static final String ADD_FRIEND_QUERY = """
+            INSERT INTO friends
+                        (user_id,
+                         friend_id,
+                         status_id)
+            VALUES      (?,
+                         ?,
+                         1)""";
+
+    private static final String DELETE_FRIEND_QUERY = """
+            UPDATE friends
+            SET    status_id = 2
+            WHERE  user_id = ?
+                   AND friend_id = ?""";
+
+    private static final String DELETE_ALL_FRIENDS_QUERY = """
+            UPDATE friends
+            SET    status_id = 2
+            WHERE  user_id = ?""";
+
+    private static final String DELETE_FROM_ALL_FRIENDS_QUERY = """
+            UPDATE friends
+            SET    status_id = 2
+            WHERE  friend_id = ?""";
+
+
+    public DBUserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
 
 
     @Override
     public Collection<User> getAll() {
+        log.debug("UserDAO/getAll");
         return findMany(FIND_ALL_QUERY);
     }
 
     @Override
     public User getById(long id) {
+        log.debug("UserDAO/getById: id {}", id);
         return findOne(FIND_BY_ID_QUERY, id)
                 .orElseThrow(
                         () -> new NotFoundException("User is not found with id " + id)
@@ -86,6 +119,8 @@ public class DBUserDAO extends BaseRepository<User> implements UserDAO {
                 user.getBirthday());
 
         user.setId(id);
+
+        log.debug("UserDAO/create - Added user: {}", user.toString());
         return user;
     }
 
@@ -100,6 +135,7 @@ public class DBUserDAO extends BaseRepository<User> implements UserDAO {
                 user.getBirthday(),
                 user.getId());
 
+        log.debug("UserDAO/update - Updated user: {}", user.toString());
         return user;
     }
 
@@ -109,43 +145,51 @@ public class DBUserDAO extends BaseRepository<User> implements UserDAO {
 
         update(DELETE_QUERY, id);
 
+        removeAllFriends(id);
+
+        log.debug("UserDAO/delete - deleted user ID: {}", id);
         return user;
     }
 
     @Override
     public void addFriend(long userId, long friendId) {
+        getById(userId);
+        getById(friendId);
 
+        long id = insert(ADD_FRIEND_QUERY,
+                userId,
+                friendId);
+
+        log.debug("UserDAO/addFriend - added friend ID {} for User ID {}", friendId, userId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
+        getById(userId);
+        getById(friendId);
 
+        update(DELETE_FRIEND_QUERY, userId, friendId);
+        log.debug("UserDAO/removeFriend - removed friend ID {} for User ID {}", friendId, userId);
     }
 
     @Override
     public Collection<User> getFriends(long id) {
-        return List.of();
-    }
+        getById(id);
 
-    @Override
-    public Collection<User> getPending(long id) {
-        return List.of();
-    }
-
-    @Override
-    public Collection<User> getRequests(long id) {
-        return List.of();
+        log.debug("User/getFriends id: {}", id);
+        return findMany(FIND_FRIENDS_BY_USER_ID_QUERY, id);
     }
 
     @Override
     public void validate(User user) {
-        if (user.getId()>0){
-            findOne(FIND_BY_ID_QUERY,user.getId()).orElseThrow(
+        if (user.getId() > 0) {
+            findOne(FIND_BY_ID_QUERY, user.getId()).orElseThrow(
                     () -> new NotFoundException("User is not found with id " + user.getId())
             );
-        }else if(user.getId()<0){
+        } else if (user.getId() < 0) {
             throw new ValidationException("User:id - id cannot be negative");
         }
+
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             throw new ValidationException("User:login - login cannot be null or blank");
         }
@@ -157,5 +201,10 @@ public class DBUserDAO extends BaseRepository<User> implements UserDAO {
         if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("User:birthday - birthday cannot be in future");
         }
+    }
+
+    public void removeAllFriends(long id) {
+        update(DELETE_ALL_FRIENDS_QUERY, id);
+        update(DELETE_FROM_ALL_FRIENDS_QUERY, id);
     }
 }
