@@ -26,7 +26,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ComponentScan
 @Import({DBUserRepository.class})
-class FilmoRateApplicationTests {
+class FilmorateApplicationTests {
     @Autowired
     private final DBUserRepository userRepository;
 
