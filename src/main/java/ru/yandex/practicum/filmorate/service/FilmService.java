@@ -103,7 +103,7 @@ public class FilmService {
     private Film validateMpaAndGenre(Film film) {
         Collection<Genre> genres = genreRepository.findAll();
 
-        if (film.getGenres() == null) {
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
             film.setGenres(new ArrayList<>());
         }
 
