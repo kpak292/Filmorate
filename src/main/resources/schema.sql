@@ -69,7 +69,6 @@ updated_at timestamp default current_timestamp on update current_timestamp,
 
 foreign key (rating_id) references rating(id),
 foreign key (status_id) references entry_status(id));
-create unique index if not exists FILM_NAME_UINDEX on FILMS (name);
 
 -- likes - log
 CREATE TABLE IF NOT EXISTS likes(
