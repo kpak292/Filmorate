@@ -1,7 +1,8 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.entities;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,8 @@ public class User {
     @NotBlank
     String email;
     @NotBlank
+    @Pattern(regexp = "^[A-Za-z0-9]{1,200}$",
+            message = "username must be of 6 to 12 length with no special characters")
     String login;
     String name;
     @DateTimeFormat(pattern = "yyyy-MM-dd")

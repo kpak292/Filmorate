@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.repository;
+package ru.yandex.practicum.filmorate.dal;
 
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.entities.Film;
 
 import java.util.Collection;
 import java.util.Map;
 
-public interface FilmDAO {
+public interface FilmRepository {
     Collection<Film> findAll();
 
     Film create(Film film);
@@ -23,6 +23,4 @@ public interface FilmDAO {
     Collection<Film> getTop(int count);
 
     void validate(Film films);
-
-    void validate(long... ids);
 }

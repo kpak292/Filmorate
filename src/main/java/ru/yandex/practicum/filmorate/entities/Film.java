@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.entities;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Film.
@@ -24,4 +25,6 @@ public class Film {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate releaseDate;
     int duration;
+    List<Genre> genres;
+    Mpa mpa;
 }

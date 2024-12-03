@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.repository;
+package ru.yandex.practicum.filmorate.dal;
 
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.entities.User;
 
 import java.util.Collection;
 
-public interface UserDAO {
+public interface UserRepository {
     Collection<User> getAll();
 
     User getById(long id);
@@ -20,8 +20,6 @@ public interface UserDAO {
     void removeFriend(long userId, long friendId);
 
     Collection<User> getFriends(long id);
-
-    void validate(long... ids);
 
     void validate(User user);
 }

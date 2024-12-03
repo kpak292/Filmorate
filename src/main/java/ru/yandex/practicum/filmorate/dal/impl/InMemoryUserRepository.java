@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.repository.impl;
+package ru.yandex.practicum.filmorate.dal.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.entities.User;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.UserDAO;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -13,9 +13,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
-public class InMemoryUserDAO implements UserDAO {
+public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
-    private final Map<Long, Collection<Long>> friends = new HashMap<>();
+    private final Map<Long, Map<Long, Integer>> friends = new HashMap<>();
+    //added status
+    //0 - requested friendship
+    //1 - pending request
+    //2 - friends
 
     @Override
     public Collection<User> getAll() {
@@ -68,21 +72,34 @@ public class InMemoryUserDAO implements UserDAO {
     public void addFriend(long userId, long friendId) {
         validate(userId, friendId);
 
+        //If there is no any bonds - create blank map
         if (!friends.containsKey(userId)) {
-            friends.put(userId, new HashSet<>());
+            friends.put(userId, new HashMap<>());
         }
 
-        if (friends.get(userId).contains(friendId)) {
+        //If user has bonds with friendId not equal to 1 - Exception
+        if (friends.get(userId).containsKey(friendId) && friends.get(userId).get(friendId) != 1) {
             throw new ValidationException("Error: User already have friend with id " + friendId);
         }
 
-        friends.get(userId).add(friendId);
-
-        if (!friends.containsKey(friendId)) {
-            friends.put(friendId, new HashSet<>());
+        //If there is no bonds - Create pending request, else finalize frienship
+        if (!friends.get(userId).containsKey(friendId))
+            friends.get(userId).put(friendId, 0);
+        else {
+            friends.get(userId).put(friendId, 2);
         }
 
-        friends.get(friendId).add(userId);
+        //If friend does not have bonds - create blank
+        if (!friends.containsKey(friendId)) {
+            friends.put(friendId, new HashMap<>());
+        }
+
+        //If there is no bonds - Create pending request, else finalize frienship
+        if (!friends.get(friendId).containsKey(userId)) {
+            friends.get(friendId).put(userId, 1);
+        } else {
+            friends.get(friendId).put(userId, 2);
+        }
 
         log.debug("UserDAO/addFriend - added friend ID {} for User ID {}", friendId, userId);
     }
@@ -111,7 +128,9 @@ public class InMemoryUserDAO implements UserDAO {
         }
 
         log.debug("User/getFriends id: {}", id);
-        return friends.get(id).stream()
+        return friends.get(id).entrySet().stream()
+                .filter(entry -> entry.getValue() == 2)
+                .map(Map.Entry::getKey)
                 .map(users::get)
                 .toList();
     }
@@ -127,7 +146,6 @@ public class InMemoryUserDAO implements UserDAO {
     }
 
     // Util method for check users
-    @Override
     public void validate(long... ids) {
         String notFound = Arrays.stream(ids)
                 .filter(id -> !users.containsKey(id))

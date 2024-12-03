@@ -4,10 +4,10 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dal.impl.InMemoryUserRepository;
+import ru.yandex.practicum.filmorate.entities.User;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.UserDAO;
-import ru.yandex.practicum.filmorate.repository.impl.InMemoryUserDAO;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class UserModelTest {
-    private final UserDAO validator = new InMemoryUserDAO();
+    private final UserRepository validator = new InMemoryUserRepository();
 
     @Test
     public void shouldNotValidateUserWithBlankLogin() {
